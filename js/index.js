@@ -1,6 +1,7 @@
 (function () {
 
     let client_id = "eb1dc3596b014b8e921d8c6fd84a4eba";
+    let MAX_TRACKS = 50;
 
     const encodeParams = params => {
         return Object.entries(params).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
@@ -27,35 +28,23 @@
         });
     }
 
-    function get_saved_tracks(access_token, songs) {
-        return new Promise((resolve, reject) => {
-            let params = {
-                limit: 50,
-                offset = 0,
-            }
+    function get_saved_tracks(access_token, params, songs) {
 
-            let tracks_endpoint = "https://api.spotify.com/v1/me/tracks";
+        let tracks_endpoint = "https://api.spotify.com/v1/me/tracks";
 
-            make_api_request(tracks_endpoint, params, access_token)
-                .then(response => {
-                    songs = [...songs, ...response.items];
-                    let total = response.total;
-                    if (next) [
-                        // do the thing
-                    ]
-                    while (count <= total) {
-                        params.offset += 50;
-                        make_api_request(tracks_endpoint, params, access_token)
-                            .then(response => {
-                                songs = [...songs, ...response.items];
-                            });
-                    }
-                });
-                
-        });
-
-
-
+        return make_api_request(tracks_endpoint, params, access_token)
+            .then(response => {
+                if (!songs) {
+                    songs = [];
+                }
+                songs = songs.concat(response.items);
+                console.log(songs.length);
+                if (songs.length < response.total) {
+                    params.offset += MAX_TRACKS;
+                    return get_saved_tracks(access_token, params, songs);
+                }
+                return songs;
+            });
     }
 
 
@@ -89,7 +78,7 @@
     }
     access_token = check_url_for_access_token();
     if (access_token) {
-        get_saved_tracks(access_token);
+        get_saved_tracks(access_token, { limit: MAX_TRACKS, offset: 0 }, []);
     } else {
         do_spotify_auth();
     }
