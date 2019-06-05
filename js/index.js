@@ -10,7 +10,27 @@
                 db.getAllItems()
                     .then(songs => {
                         console.log(songs.length);
-                    })
+                        console.log(songs);
+                        songs.sort((a, b) => {
+                            if (a.track.name.toUpperCase() < b.track.name.toUpperCase()) {
+                                return -1;
+                            } else if (a.track.name.toUpperCase() > b.track.name.toUpperCase()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                        console.log(songs);
+                        songs.forEach(a => {
+                            songs.forEach(b => {
+                                if (!(a === b)) {
+                                    if ((a.track.name === b.track.name) && (a.track.artists[0].name === b.track.artists[0].name)) {
+                                        console.log(a.track, b.track);
+                                    }
+                                }
+                            })
+                        })
+                    });
                 // get_saved_tracks(access_token, { limit: MAX_TRACKS, offset: 0 }, [])
                 //     .then(songs => {
                 //         console.log(songs);
